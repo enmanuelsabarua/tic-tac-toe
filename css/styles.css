@@ -104,6 +104,12 @@ button {
     background-color: rgba(0, 0, 0, 0.397);
 }
 
+.container.start {
+    top: -150%;
+    opacity: 0;
+    transform: translateX(-50%) translateY(-50%);
+}
+
 .start-form {
     position: absolute;
     background-color: white;

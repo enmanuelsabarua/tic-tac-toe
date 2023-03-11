@@ -1,3 +1,8 @@
+/*
+** 0: no option is in the square,
+** 1: Player One's option,
+** 2: Player 2's option
+*/
 const Square = () => {
     let value = 0;
 
@@ -13,11 +18,17 @@ const Square = () => {
     };
 };
 
+/*
+** The Gameboard represents the state of the board
+** Each square holds a Square
+** and we expose a selectSquare method to be able to select squares on the board
+*/
 const GameBoard = (() => {
     const rows = 3;
     const columns = 3;
     const board = [];
 
+    // Create a 2d array that will represent the state of the game board
     for (let i = 0; i < rows; i++) {
         board[i] = [];
         for (let j = 0; j < columns; j++) {
@@ -25,20 +36,27 @@ const GameBoard = (() => {
         }
     }
 
+    // This method get the board that our UI will need to render it
     const getBoard = () => board;
 
+    // Select an available square
     const selectSquare = (row, column, player) => {
 
+        // if the square is taken do not add a value and return 0
         if (board[row][column].getValue() !== 0) return 0;
 
         board[row][column].addValue(player);
     };
 
+    // This method will be used to print our board to the console.
+    // It is helpful to see what the board looks like after each turn as we play,
+    // but we won't need it after we build our UI
     const printBoard = () => {
         const boardWithSquareValues = board.map(row => row.map(cell => cell.getValue()));
         console.log(boardWithSquareValues);
     };
 
+    // This method will be triggered when we want to reset the game
     const resetBoard = () => {
         for (let i = 0; i < rows; i++) {
             board[i] = [];
@@ -52,8 +70,12 @@ const GameBoard = (() => {
 })();
 
 
-
-const GameController = ((
+/* 
+** The GameController will be responsible for controlling the 
+** flow and state of the game's turns, as well as whether
+** anybody has won the game
+*/
+const GameController = (
     playerOneName = "Player One",
     playerTwoName = "Player Two"
 ) => {
@@ -104,7 +126,7 @@ const GameController = ((
         if (tie === 9) {
             setWinner(3);
         }
-        
+
         // winner finish
         // Column check X
         for (let i = 0; i < 3; i++) {
@@ -194,6 +216,7 @@ const GameController = ((
             j--;
         }
 
+        // If the player does not select a taken square nor there's a winner, switch player turn
         if (switchPlayer !== 0 && getWinner() === 0) {
             switchPlayerTurn();
             printNewRound();
@@ -202,6 +225,7 @@ const GameController = ((
 
     printNewRound();
 
+    // Interface that we need to use
     return {
         playRound,
         getActivePlayer,
@@ -211,16 +235,39 @@ const GameController = ((
         resetBoard: board.resetBoard,
     }
 
-})();
+};
 
 const ScreenController = (() => {
-    const game = GameController;
+    let game = GameController();
+    const formContainer = document.querySelector('.container');
+    const startButton = document.querySelector('#start');
+
+    // Start the game with the names entered
+    startButton.addEventListener('click', e => {
+        formContainer.classList.add('start');
+        const playerOneName = document.querySelector('#name1').value;
+        const playerTwoName = document.querySelector('#name2').value;
+
+        if (playerOneName === '' && playerTwoName !== '') {
+            game = GameController("Player One", playerTwoName);
+        } else if (playerOneName !== '' && playerTwoName === '') {
+            game = GameController(playerOneName, 'Player Two');
+        } else if (playerOneName === '' && playerTwoName === '') {
+            game = GameController();
+        } else {
+            game = GameController(playerOneName, playerTwoName);
+        }
+
+        updateScreen();
+    });
+
+
     const playerTurnDiv = document.querySelector('.turn');
     const boardDiv = document.querySelector('.board');
     const resetButton = document.querySelector('#reset');
     let finish = 0;
 
-    const updateScreen = () => {
+    function updateScreen() {
         // clear the board
         boardDiv.textContent = "";
 
