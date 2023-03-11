@@ -1,0 +1,74 @@
+* {
+    padding: 0;
+    margin: 0;
+}
+
+html {
+    font-family: 'Roboto', sans-serif;
+    text-align: center;
+    height: 100%;
+}
+
+h1 {
+    font-weight: bold;
+    font-size: 3rem;
+}
+
+.main {
+    padding: 2rem;
+}
+
+.game-container {
+    margin: 2rem auto;
+    width: 600px;
+    height: 600px;
+    background-color: rgb(168, 168, 168);
+    border-radius: 2rem;
+    display: grid;
+    grid-template: repeat(3, 1fr) / repeat(3, 1fr);
+    padding: 1rem;
+}
+
+.square {
+    /* border: 5px black solid; */
+}
+
+.square1 {
+    border-right: 10px white solid;
+    border-bottom: 10px white solid;
+    border-radius: 0 5px;
+}
+
+.square2 {
+    border-bottom: 10px white solid;
+}
+
+.square3 {
+    border-left: 10px white solid;
+    border-bottom: 10px white solid;
+    border-radius: 5px 0;
+}
+
+.square4 {
+    border-right: 10px white solid;
+}
+
+.square6 {
+    border-left: 10px white solid;
+}
+
+.square7 {
+    border-top: 10px white solid;
+    border-right: 10px white solid;
+    border-radius: 5px 0;
+}
+
+.square8 {
+    border-top: 10px white solid;
+}
+
+.square9 {
+    border-top: 10px white solid;
+    border-left: 10px white solid;
+    border-radius: 0 5px;
+}
