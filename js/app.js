@@ -110,6 +110,9 @@ const GameController = (
 
     const setWinner = (player) => {
         winner = player;
+        if (player === 0) {
+            tie = 0;
+        }
     }
 
     const getWinner = () => winner; 
