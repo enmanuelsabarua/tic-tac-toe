@@ -18,7 +18,7 @@ h1 {
     padding: 2rem;
 }
 
-.game-container {
+.board {
     margin: 2rem auto;
     width: 600px;
     height: 600px;
@@ -71,4 +71,11 @@ h1 {
     border-top: 10px white solid;
     border-left: 10px white solid;
     border-radius: 0 5px;
+}
+
+button {
+    background-color: transparent;
+    font-size: 10rem;
+    border: none;
+    cursor: pointer;
 }

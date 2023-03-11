@@ -63,7 +63,7 @@ const GameBoard = (() => {
 
 
 
-const DisplayController = ((
+const GameController = ((
     playerOneName = "Player One",
     playerTwoName = "Player Two"
 ) => {
@@ -187,7 +187,55 @@ const DisplayController = ((
 
     return {
         playRound,
-        getActivePlayer
+        getActivePlayer,
+        getBoard: board.getBoard,
     }
 
+})();
+
+const ScreenController = (() => {
+    const game = GameController;
+    const playerTurnDiv = document.querySelector('.turn');
+    const boardDiv = document.querySelector('.board');
+
+    const updateScreen = () => {
+        boardDiv.textContent = "";
+
+        const board = game.getBoard();
+        const activePlayer = game.getActivePlayer();
+
+        playerTurnDiv.textContent = `${activePlayer.name}'s turn...`;
+
+        let squares = 1;
+        board.forEach((row, rowIndex) => {
+            row.forEach((column, columnIndex) => {
+
+                const squareButton = document.createElement("button");
+                squareButton.classList.add('square');
+                squareButton.classList.add('square');
+
+                squareButton.classList.add(`square${squares}`);
+                squares++;
+
+                squareButton.dataset.row = rowIndex;
+                squareButton.dataset.column = columnIndex;
+
+                squareButton.textContent = column.getValue();
+                boardDiv.appendChild(squareButton);
+            })
+        })
+    }
+
+    function clickHandlerBoard(e) {
+        const selectedRow = e.target.dataset.row;
+        const selectedColumn = e.target.dataset.column;
+
+        if (!selectedRow || !selectedColumn) return;
+
+        game.playRound(selectedRow, selectedColumn);
+        updateScreen();
+    }
+    boardDiv.addEventListener('click', clickHandlerBoard);
+
+    updateScreen();
 })();
