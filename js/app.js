@@ -25,29 +25,10 @@ const GameBoard = (() => {
         }
     }
 
-    // for (let i = 0; i < 9; i++) {
-    //     board.push(Square());
-    // }
-
     const getBoard = () => board;
 
     const selectSquare = (row, column, player) => {
 
-        const unavailableSquares = [];
-
-        // for (let i = 0; i < board.length; i++) {
-        //     if (board[i].getValue() !== 0) unavailableSquares.push(i);
-        // }
-
-        // for (let i = 0; i < rows; i++) {
-        //     unavailableSquares[i] = [];
-        //     for (let j = 0; j < columns; j++) {
-        //         //     if (board[i].getValue() !== 0) unavailableSquares.push(i);
-        //         if (unavailableSquares[i][j].getValue() !== 0)
-        //     }
-        // }
-
-        // if (unavailableSquares.includes(square)) return;
         if (board[row][column].getValue() !== 0) return 0;
 
         board[row][column].addValue(player);
@@ -58,7 +39,16 @@ const GameBoard = (() => {
         console.log(boardWithSquareValues);
     };
 
-    return { getBoard, selectSquare, printBoard };
+    const resetBoard = () => {
+        for (let i = 0; i < rows; i++) {
+            board[i] = [];
+            for (let j = 0; j < columns; j++) {
+                board[i].push(Square());
+            }
+        }
+    }
+
+    return { getBoard, selectSquare, printBoard, resetBoard };
 })();
 
 
@@ -68,6 +58,7 @@ const GameController = ((
     playerTwoName = "Player Two"
 ) => {
     const board = GameBoard;
+    
     
     const players = [
         {
@@ -92,19 +83,36 @@ const GameController = ((
         console.log(`${getActivePlayer().name}'s turn`);
     }
 
+    let winner = 0;
+    let tie = 0;
+
+    const setWinner = (player) => {
+        winner = player;
+    }
+
+    const getWinner = () => winner; 
+
     const playRound = (row, column) => {
+        tie++;
+
         console.log(
             `Selecting ${getActivePlayer().name}'s option into the ${row} row and the ${column} column`
         );
         const switchPlayer = board.selectSquare(row, column, getActivePlayer().option);
 
+        // Tie
+        if (tie === 9) {
+            setWinner(3);
+        }
+        
         // winner finish
         // Column check X
         for (let i = 0; i < 3; i++) {
             if (board.getBoard()[row][i].getValue() !== 1) {
                 break;
             } else if(i === 2) {
-                console.log('X win');
+                setWinner(1);
+                console.log('O win');
             }
         }
 
@@ -113,6 +121,7 @@ const GameController = ((
             if (board.getBoard()[row][i].getValue() !== 2) {
                 break;
             } else if(i === 2) {
+                setWinner(2);
                 console.log('O win');
             }
         }
@@ -122,6 +131,7 @@ const GameController = ((
             if (board.getBoard()[i][column].getValue() !== 1) {
                 break;
             } else if(i === 2) {
+                setWinner(1);
                 console.log('X win');
             }
         }
@@ -131,6 +141,7 @@ const GameController = ((
             if (board.getBoard()[i][column].getValue() !== 2) {
                 break;
             } else if(i === 2) {
+                setWinner(2);
                 console.log('O win');
             }
         }
@@ -142,6 +153,7 @@ const GameController = ((
                 if (board.getBoard()[i][i].getValue() !== 1) {
                     break;
                 } else if(i === 2) {
+                    setWinner(1);
                     console.log('X win');
                 }
             }
@@ -151,6 +163,7 @@ const GameController = ((
                 if (board.getBoard()[i][i].getValue() !== 2) {
                     break;
                 } else if(i === 2) {
+                    setWinner(2);
                     console.log('O win');
                 }
             }
@@ -162,6 +175,7 @@ const GameController = ((
             if (board.getBoard()[i][j].getValue() !== 1) {
                 break;
             } else if(i === 2) {
+                setWinner(1);
                 console.log('X win');
             }
 
@@ -173,13 +187,14 @@ const GameController = ((
             if (board.getBoard()[i][j].getValue() !== 2) {
                 break;
             } else if(i === 2) {
+                setWinner(2);
                 console.log('O win');
             }
 
             j--;
         }
 
-        if (switchPlayer !== 0) {
+        if (switchPlayer !== 0 && getWinner() === 0) {
             switchPlayerTurn();
             printNewRound();
         }
@@ -190,7 +205,10 @@ const GameController = ((
     return {
         playRound,
         getActivePlayer,
+        getWinner,
+        setWinner,
         getBoard: board.getBoard,
+        resetBoard: board.resetBoard,
     }
 
 })();
@@ -199,28 +217,44 @@ const ScreenController = (() => {
     const game = GameController;
     const playerTurnDiv = document.querySelector('.turn');
     const boardDiv = document.querySelector('.board');
+    const resetButton = document.querySelector('#reset');
+    let finish = 0;
 
     const updateScreen = () => {
+        // clear the board
         boardDiv.textContent = "";
 
+        // get the newest version of the board, player turn and if there's a winner
         const board = game.getBoard();
         const activePlayer = game.getActivePlayer();
+        const winner = game.getWinner();
 
+         // Display player's turn
         playerTurnDiv.textContent = `${activePlayer.name}'s turn...`;
 
-        let squares = 1;
+        let squares = 1; // class name
+        // Render board squares
         board.forEach((row, rowIndex) => {
             row.forEach((column, columnIndex) => {
 
                 const squareButton = document.createElement("button");
                 squareButton.classList.add('square');
-                squareButton.classList.add('square');
-
+                // squareButton.classList.add('square');
                 squareButton.classList.add(`square${squares}`);
                 squares++;
 
+                // Create a data attribute to identify the row and column
+                // This makes it easier to pass into our `playRound` function 
                 squareButton.dataset.row = rowIndex;
                 squareButton.dataset.column = columnIndex;
+
+                if (winner === 1 || winner === 2) {
+                    playerTurnDiv.textContent = `${activePlayer.name} Winner!`;
+                    finish = 1;
+                } else if (winner === 3) {
+                    playerTurnDiv.textContent = `It's a tie!`;
+                    finish = 1;
+                }
 
                 if (column.getValue() === 0) {
                     squareButton.textContent = '';
@@ -229,21 +263,34 @@ const ScreenController = (() => {
                 } else if (column.getValue() === 2) {
                     squareButton.textContent = 'O';
                 }
+                
                 boardDiv.appendChild(squareButton);
             })
         })
+
     }
 
+    // Add event listener for the board
     function clickHandlerBoard(e) {
         const selectedRow = e.target.dataset.row;
         const selectedColumn = e.target.dataset.column;
 
         if (!selectedRow || !selectedColumn) return;
 
-        game.playRound(selectedRow, selectedColumn);
+        if (!finish) game.playRound(selectedRow, selectedColumn);
         updateScreen();
     }
     boardDiv.addEventListener('click', clickHandlerBoard);
 
+    function reset(e) {
+        game.resetBoard();
+        game.setWinner(0);
+        finish = 0;
+        updateScreen();
+    }
+
+    resetButton.addEventListener('click', reset);
+
+    // Initial render
     updateScreen();
 })();
