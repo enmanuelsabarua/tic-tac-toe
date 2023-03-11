@@ -48,7 +48,7 @@ const GameBoard = (() => {
         // }
 
         // if (unavailableSquares.includes(square)) return;
-        if (board[row][column].getValue() !== 0) return;
+        if (board[row][column].getValue() !== 0) return 0;
 
         board[row][column].addValue(player);
     };
@@ -96,7 +96,7 @@ const GameController = ((
         console.log(
             `Selecting ${getActivePlayer().name}'s option into the ${row} row and the ${column} column`
         );
-        board.selectSquare(row, column, getActivePlayer().option);
+        const switchPlayer = board.selectSquare(row, column, getActivePlayer().option);
 
         // winner finish
         // Column check X
@@ -179,8 +179,10 @@ const GameController = ((
             j--;
         }
 
-        switchPlayerTurn();
-        printNewRound();
+        if (switchPlayer !== 0) {
+            switchPlayerTurn();
+            printNewRound();
+        }
     };
 
     printNewRound();
@@ -220,7 +222,13 @@ const ScreenController = (() => {
                 squareButton.dataset.row = rowIndex;
                 squareButton.dataset.column = columnIndex;
 
-                squareButton.textContent = column.getValue();
+                if (column.getValue() === 0) {
+                    squareButton.textContent = '';
+                } else if (column.getValue() === 1) {
+                    squareButton.textContent = 'X';
+                } else if (column.getValue() === 2) {
+                    squareButton.textContent = 'O';
+                }
                 boardDiv.appendChild(squareButton);
             })
         })
