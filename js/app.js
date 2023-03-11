@@ -1,6 +1,3 @@
-// const Player = (name, selection) => {
-//     return {name, selection};
-// }
 const Square = () => {
     let value = 0;
 
@@ -17,29 +14,47 @@ const Square = () => {
 };
 
 const GameBoard = (() => {
+    const rows = 3;
+    const columns = 3;
     const board = [];
 
-    for (let i = 0; i < 9; i++) {
-        board.push(Square());
+    for (let i = 0; i < rows; i++) {
+        board[i] = [];
+        for (let j = 0; j < columns; j++) {
+            board[i].push(Square());
+        }
     }
+
+    // for (let i = 0; i < 9; i++) {
+    //     board.push(Square());
+    // }
 
     const getBoard = () => board;
 
-    const selectSquare = (square, player) => {
+    const selectSquare = (row, column, player) => {
 
         const unavailableSquares = [];
 
-        for (let i = 0; i < board.length; i++) {
-            if (board[i].getValue() !== 0) unavailableSquares.push(i);
-        }
+        // for (let i = 0; i < board.length; i++) {
+        //     if (board[i].getValue() !== 0) unavailableSquares.push(i);
+        // }
 
-        if (unavailableSquares.includes(square)) return;
+        // for (let i = 0; i < rows; i++) {
+        //     unavailableSquares[i] = [];
+        //     for (let j = 0; j < columns; j++) {
+        //         //     if (board[i].getValue() !== 0) unavailableSquares.push(i);
+        //         if (unavailableSquares[i][j].getValue() !== 0)
+        //     }
+        // }
 
-        board[square].addValue(player);
+        // if (unavailableSquares.includes(square)) return;
+        if (board[row][column].getValue() !== 0) return;
+
+        board[row][column].addValue(player);
     };
 
     const printBoard = () => {
-        const boardWithSquareValues = board.map(square => square.getValue());
+        const boardWithSquareValues = board.map(row => row.map(cell => cell.getValue()));
         console.log(boardWithSquareValues);
     };
 
@@ -77,19 +92,92 @@ const DisplayController = ((
         console.log(`${getActivePlayer().name}'s turn`);
     }
 
-    const playRound = square => {
+    const playRound = (row, column) => {
         console.log(
-            `Selecting ${getActivePlayer().name}'s option into the ${square} square`
+            `Selecting ${getActivePlayer().name}'s option into the ${row} row and the ${column} column`
         );
-        board.selectSquare(square, getActivePlayer().option);
+        board.selectSquare(row, column, getActivePlayer().option);
 
         // winner finish
-            for (let i = 0; i < board.length; i++) {
-                if (i === 0 || i === 1 || i === 2 ) {
+        // Column check X
+        for (let i = 0; i < 3; i++) {
+            if (board.getBoard()[row][i].getValue() !== 1) {
+                break;
+            } else if(i === 2) {
+                console.log('X win');
+            }
+        }
 
+        // Column check O
+        for (let i = 0; i < 3; i++) {
+            if (board.getBoard()[row][i].getValue() !== 2) {
+                break;
+            } else if(i === 2) {
+                console.log('O win');
+            }
+        }
+
+        // Row check X
+        for (let i = 0; i < 3; i++) {
+            if (board.getBoard()[i][column].getValue() !== 1) {
+                break;
+            } else if(i === 2) {
+                console.log('X win');
+            }
+        }
+
+        // Row check O
+        for (let i = 0; i < 3; i++) {
+            if (board.getBoard()[i][column].getValue() !== 2) {
+                break;
+            } else if(i === 2) {
+                console.log('O win');
+            }
+        }
+
+        // Diagonal
+        if(row === column){
+            // Diagonal check X
+            for (let i = 0; i < 3; i++) {
+                if (board.getBoard()[i][i].getValue() !== 1) {
+                    break;
+                } else if(i === 2) {
+                    console.log('X win');
                 }
             }
-        // 
+
+            // Diagonal check O
+            for (let i = 0; i < 3; i++) {
+                if (board.getBoard()[i][i].getValue() !== 2) {
+                    break;
+                } else if(i === 2) {
+                    console.log('O win');
+                }
+            }
+        }
+
+        // Anti-Diagonal
+        let j = 2;
+        for (let i = 0; i < 3; i++) {
+            if (board.getBoard()[i][j].getValue() !== 1) {
+                break;
+            } else if(i === 2) {
+                console.log('X win');
+            }
+
+            j--;
+        }
+
+        j = 2;
+        for (let i = 0; i < 3; i++) {
+            if (board.getBoard()[i][j].getValue() !== 2) {
+                break;
+            } else if(i === 2) {
+                console.log('O win');
+            }
+
+            j--;
+        }
 
         switchPlayerTurn();
         printNewRound();
